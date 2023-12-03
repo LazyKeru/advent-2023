@@ -79,7 +79,7 @@ func numbers_adjacent_symbol(input []string) []int {
 func pairs_adjacent_star(input []string) []int {
 	var res []int
 	star, err := regexp.Compile("[*]")
-	numbers_regex, err := regexp.Compile("[1-9]+[0-9]*")
+	number_regex, err := regexp.Compile("[0-9]")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -105,7 +105,7 @@ func pairs_adjacent_star(input []string) []int {
 			var _tmp_adjacent_numbers []int
 			for j := top_border; j <= bottom_border; j++ {
 				for k := left_border; k <= right_border; k++ {
-					if numbers_regex.FindString(string(input[j][k])) != "" {
+					if number_regex.FindString(string(input[j][k])) != "" {
 						_tmp := numbers_touching_border(input[j], left_border, right_border)
 						_tmp_adjacent_numbers = append(_tmp_adjacent_numbers, _tmp...)
 						break
@@ -113,9 +113,6 @@ func pairs_adjacent_star(input []string) []int {
 				}
 			}
 			if len(_tmp_adjacent_numbers) == 2 {
-				log.Print("numbers:")
-				log.Print(_tmp_adjacent_numbers[0])
-				log.Print(_tmp_adjacent_numbers[1])
 				res = append(res, _tmp_adjacent_numbers[0]*_tmp_adjacent_numbers[1])
 			}
 		}
@@ -131,26 +128,16 @@ func numbers_touching_border(line string, left_border int, right_border int) []i
 	}
 	values := numbers_regex.FindAllString(line, -1)
 	indexes := numbers_regex.FindAllStringIndex(line, -1)
-	log.Print("line:")
-	log.Print(line)
-	log.Print("border:")
-	log.Print(left_border)
-	log.Print(right_border)
-	log.Print("numbers_index:")
-	log.Print(indexes)
 	for i := 0; i < len(values); i++ {
 		if left_border <= indexes[i][0] && indexes[i][0] <= right_border {
-			log.Print("left")
 			res = append(res, string_int(values[i]))
 			continue
 		}
 		if left_border <= indexes[i][1]-1 && indexes[i][1]-1 <= right_border {
-			log.Print("right")
 			res = append(res, string_int(values[i]))
 			continue
 		}
 		if indexes[i][0] < left_border && right_border < indexes[i][1]-1 {
-			log.Print("center")
 			res = append(res, string_int(values[i]))
 			continue
 		}
@@ -175,5 +162,6 @@ func main() {
 	gear_ratios := pairs_adjacent_star(engine_schematic)
 	sum_gear_ratios := sum(gear_ratios)
 	log.Print(gear_ratios)
+	log.Print(len(gear_ratios))
 	log.Print(sum_gear_ratios)
 }
