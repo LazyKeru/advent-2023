@@ -74,32 +74,50 @@ func string_to_card(raw_card string) (card, error) {
 	return res, err
 }
 
-func total_points_card(formated_card card) int {
+func total_winning_pair(formated_card card) int {
 	var winning_pair int
 	for _, scratched_number := range formated_card.scratched_numbers {
 		if slices.Contains(formated_card.winning_numbers, scratched_number) {
 			winning_pair += 1
 		}
 	}
-	if winning_pair == 0 {
-		return 0
-	}
-	res := 1
-	for i := 0; i < winning_pair-1; i++ {
-		res *= 2
-	}
-	log.Print("Number of winning and then score:")
-	log.Print(winning_pair)
-	log.Print(res)
-	return res
+	return winning_pair
 }
 
 func total_points_cards(formated_cards []card) int {
 	var res int
 	for i := 0; i < len(formated_cards); i++ {
-		res += total_points_card(formated_cards[i])
+		winning_pair := total_winning_pair(formated_cards[i])
+		if winning_pair == 0 {
+			continue
+		}
+		tmp := 1
+		for i := 0; i < winning_pair-1; i++ {
+			tmp *= 2
+		}
+		res += tmp
 	}
 	return res
+}
+
+func scratch_card(n int, winning_pairs_cards []int) int {
+	res := 1
+	for i := 1; i <= winning_pairs_cards[n]; i++ {
+		res += scratch_card(n+i, winning_pairs_cards)
+	}
+	return res
+}
+
+func total_scratch_cards(formated_cards []card) int {
+	var scratched_cards int
+	var winning_pairs_cards []int
+	for _, formated_card := range formated_cards {
+		winning_pairs_cards = append(winning_pairs_cards, total_winning_pair(formated_card))
+	}
+	for n := 0; n < len(formated_cards); n++ {
+		scratched_cards += scratch_card(n, winning_pairs_cards)
+	}
+	return scratched_cards
 }
 
 func main() {
@@ -109,4 +127,6 @@ func main() {
 	log.Print(formated_cards)
 	part1_result := total_points_cards(formated_cards)
 	log.Print(part1_result)
+	part2_result := total_scratch_cards(formated_cards)
+	log.Print(part2_result)
 }
